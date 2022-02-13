@@ -1,7 +1,7 @@
 #kumu_test
 # Bash script for Running phpqa analyzers
 
-Bash scripts that executes multiple php analyzers using the phpqa docker image. The script executes a docker run command that mounts the provided first script parameter to the container. The second parameter is the src which will be check by the phpqa container. 
+Bash scripts that executes multiple php analyzers using the phpqa docker image. The script executes a docker run command that mounts the provided first parameter to the container. The second parameter is the src which will be check by the phpqa container. The container will be removed after each analyzer test. 
 
 **Docker Image used**
 (https://hub.docker.com/r/jakzal/phpqa/)
