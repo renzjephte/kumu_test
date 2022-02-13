@@ -14,9 +14,11 @@ Bash scripts that executes multiple php analyzers using the phpqa docker image. 
  - Phpcpd
 
 **Input**
+
 Script expects two parameters. First parameter is the project path which will be mounted on the container. Second parameter is the source path/file which will be tested by the container. Inputs are validated by concatenating the two parameters and checking if the file/path exits. 
 
 **Output**
+
 The container will display the results of the analyzers.
 
 Example with php src file
