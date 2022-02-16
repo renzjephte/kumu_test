@@ -11,29 +11,66 @@ src=$2
 #Exit if invalid
 echo $proj_path/$src
 if [ ! -d $proj_path/$src ] && [ ! -f $proj_path/$src ]
-	then 
-		echo "Project path or Source Path/File does not exist"
-		exit 1
+        then
+                echo "Project path or Source Path/File does not exist"
+                exit 1
 fi
 
 #Execute test
 cd $proj_path
 echo "Parallel-lint analyzer result"
-docker run --init -it --rm -v "$(pwd):/project" -v "$(pwd)/tmp-phpqa:/tmp" -w /project jakzal/phpqa parallel-lint  $src
+result1=$(docker run --init -it --rm -v "$(pwd):/project" -v "$(pwd)/tmp-phpqa:/tmp" -w /project jakzal/phpqa parallel-lint $src)
+echo $result1
+if [[ $result1=*"No syntax error found"* ]]
+then
+     err_cnt=0
+else
+     err_cnt=1
+     echo "with error"
+fi
 echo -e "------\n"
 
 echo "Phpstan analyzer result"
-docker run --init -it --rm -v "$(pwd):/project" -v "$(pwd)/tmp-phpqa:/tmp" -w /project jakzal/phpqa phpstan analyse $src
+result2=$(docker run --init -it --rm -v "$(pwd):/project" -v "$(pwd)/tmp-phpqa:/tmp" -w /project jakzal/phpqa phpstan analyse $src)
+echo $result2
+if [[ $result2=*" [ERROR] Found "* ]]
+then
+     let err_cnt++
+     echo "with error"
+fi
 echo -e "------\n"
 
 echo "Phpcs analyzer result"
-docker run --init -it --rm -v "$(pwd):/project" -v "$(pwd)/tmp-phpqa:/tmp" -w /project jakzal/phpqa phpcs  $src
+result3=$(docker run --init -it --rm -v "$(pwd):/project" -v "$(pwd)/tmp-phpqa:/tmp" -w /project jakzal/phpqa phpcs  $src)
+echo $result3
+if [[ $result3=*"ERROR AFFECTING"* ]]
+then
+     let err_cnt++
+     echo "with error"
+fi
+
 echo -e "------\n"
 
 echo "Local-php-security-checker analyzer result"
-docker run --init -it --rm -v "$(pwd):/project" -v "$(pwd)/tmp-phpqa:/tmp" -w /project jakzal/phpqa local-php-security-checker  $src
+result5=$(docker run --init -it --rm -v "$(pwd):/project" -v "$(pwd)/tmp-phpqa:/tmp" -w /project jakzal/phpqa local-php-security-checker  $src)
+echo $result5
+if [[ $result5=*"composer.lock is not a valid lock file"* ]]
+then
+     let err_cnt++
+     echo "with error"
+fi
 echo -e "------\n"
 
 echo "Phpcpd analyzer result"
-docker run --init -it --rm -v "$(pwd):/project" -v "$(pwd)/tmp-phpqa:/tmp" -w /project jakzal/phpqa phpcpd  $src
+result4=$(docker run --init -it --rm -v "$(pwd):/project" -v "$(pwd)/tmp-phpqa:/tmp" -w /project jakzal/phpqa phpcpd  $src)
+echo $result4
+if [[ !  $result4=*"No clones found."* ]]
+then
+     let err_cnt++
+     echo "with error"
+fi
+
+
 echo -e "------\n"
+
+echo "total Errors " $err_cnt " out of five"
